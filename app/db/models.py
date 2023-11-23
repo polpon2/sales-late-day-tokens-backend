@@ -9,7 +9,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    uuid = Column(String(255), unique=True, index=True)
+    username = Column(String(255), unique=True, index=True)
     credits = Column(Integer, default=100)
 
 
@@ -25,7 +25,7 @@ class Inventory(Base):
 class Order(Base):
     __tablename__ = "orders"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.uuid"))
+    user_id = Column(Integer, ForeignKey("users.username"))
     inventory_uuid = Column(Integer, ForeignKey("inventories.uuid"))
     purchase_amount = Column(Integer, default=0)
 

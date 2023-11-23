@@ -60,17 +60,17 @@ class RabbitMQConnection:
             return True
         return False
 
-    # def send_data_exchange(self, exchange_name="socketio", data=json.dumps({"socket_name": "", "data": ""})):
-    #     channel = self.get_channel()
-    #     # print(f"\n\n\n {channel} \n\n\n\n")
-    #     if (channel):
-    #         channel.exchange_declare(exchange=exchange_name, exchange_type='fanout', durable=False)
+    def send_data_exchange(self, exchange_name="socketio", data=json.dumps({"socket_name": "", "data": ""})):
+        channel = self.get_channel()
+        # print(f"\n\n\n {channel} \n\n\n\n")
+        if (channel):
+            channel.exchange_declare(exchange=exchange_name, exchange_type='fanout', durable=False)
 
-    #         channel.basic_publish(exchange=exchange_name,
-    #                             routing_key='',
-    #                             body=data)
+            channel.basic_publish(exchange=exchange_name,
+                                routing_key='',
+                                body=data)
 
-    #         print(f" [x] Sent '{data}' to '{exchange_name}'")
-    #         channel.close()
-    #         return True
-    #     return False
+            print(f" [x] Sent '{data}' to '{exchange_name}'")
+            channel.close()
+            return True
+        return False
