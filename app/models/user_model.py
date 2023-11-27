@@ -6,10 +6,8 @@ class User(BaseModel):
     
 class Purchase(BaseModel):
     username: str
-    user_credit: int
-    inventory_uuid: str
-    pirce: int
-    amout: int
+    token_name: str
+    amount: int
 
 class UserCreate(BaseModel):
     username: str
