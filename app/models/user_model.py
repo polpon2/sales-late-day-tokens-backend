@@ -7,7 +7,7 @@ class User(BaseModel):
 class Purchase(BaseModel):
     username: str
     user_credit: int
-    inventory_id: int
+    inventory_uuid: str
     pirce: int
     amout: int
 

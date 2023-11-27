@@ -22,23 +22,23 @@ router = APIRouter(prefix="/api")
 
 models.Base.metadata.create_all(bind=engine)
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# def get_db():
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
 
-@router.post("/add-item/")
-async def purchase(
-    item: Item,
-    db: Session = Depends(get_db)
-    ):
-    db_item = crud.get_item_by_name(db, name=item.name)
-    if db_item:
-        raise HTTPException(status_code=400, detail="item name already existed")
-    crud.create_item(db=db, name=item.name, price=item.price, amount=item.amount)
-    return
+# @router.post("/add-item/")
+# async def purchase(
+#     item: Item,
+#     db: Session = Depends(get_db)
+#     ):
+#     db_item = crud.get_item_by_name(db, name=item.name)
+#     if db_item:
+#         raise HTTPException(status_code=400, detail="item name already existed")
+#     crud.create_item(db=db, name=item.name, price=item.price, amount=item.amount)
+    # return
 
 @router.post("/purchase/")
 async def purchase(purchase_detail: Purchase):
