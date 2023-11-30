@@ -9,6 +9,26 @@ from sqlalchemy.orm import Session
 
 load_dotenv()
 
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import (
+    BatchSpanProcessor,
+    ConsoleSpanExporter,
+)
+
+# Sets provider
+provider = TracerProvider()
+
+# Sets processor for span
+processor = BatchSpanProcessor(ConsoleSpanExporter())
+provider.add_span_processor(processor)
+
+# Sets the global default tracer provider
+trace.set_tracer_provider(provider)
+
+# Creates a tracer from the global tracer provider
+tracer = trace.get_tracer(__name__)
+
 router = APIRouter(prefix="/api")
 
 # Dependency
@@ -21,7 +41,7 @@ def get_db():
 
 @router.post("/purchase/")
 async def purchase(purchase_detail: Purchase):
-    rabbitmq.send_data(queue_name='from.backend', data=json.dumps(purchase_detail.model_dump()))
+    rabbitmq.send_data(queue_name='from.backend', data=(json.dumps(purchase_detail.model_dump())))
     return
 
 @router.post("/deliver-completed")

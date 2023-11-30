@@ -1,4 +1,7 @@
 import pika, sys, json
+from opentelemetry.instrumentation.pika import PikaInstrumentor
+
+PikaInstrumentor().instrument()
 
 class RabbitMQConnection:
     _instance = None
