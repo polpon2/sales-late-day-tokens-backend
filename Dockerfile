@@ -25,4 +25,6 @@ COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 WORKDIR /work
 COPY . .
 
-ENTRYPOINT ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+RUN opentelemetry-bootstrap --action=install
+
+ENTRYPOINT ["opentelemetry-instrument", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

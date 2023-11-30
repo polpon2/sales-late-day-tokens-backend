@@ -9,6 +9,17 @@ from sqlalchemy.orm import Session
 
 load_dotenv()
 
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
+
+
+provider = TracerProvider()
+trace.set_tracer_provider(provider)
+tracer = trace.get_tracer(__name__)
+
 router = APIRouter(prefix="/api")
 
 # Dependency
@@ -21,8 +32,25 @@ def get_db():
 
 @router.post("/purchase/")
 async def purchase(purchase_detail: Purchase):
-    rabbitmq.send_data(queue_name='from.backend', data=json.dumps(purchase_detail.model_dump()))
-    return
+
+    with tracer.start_as_current_span("kick-start-from-backend"):
+        carrier = {}
+
+       
+        # Write the current context into the carrier.
+        TraceContextTextMapPropagator().inject(carrier)
+        send_data = {
+            # username: str
+            # price: int
+            # amount: int
+            "username": purchase_detail.username,
+            "price": purchase_detail.price,
+            "amount": purchase_detail.amount,
+            "traceparent": carrier['traceparent']
+        }
+
+        rabbitmq.send_data(queue_name='from.backend', data=(json.dumps(send_data)))
+    return    
 
 @router.post("/deliver-completed")
 async def processComplete(purchase_detail: Purchase):
