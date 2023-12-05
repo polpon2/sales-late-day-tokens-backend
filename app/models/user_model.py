@@ -15,5 +15,8 @@ class UserCreate(BaseModel):
 class Debug(Purchase):
     kill_create: bool = False
     kill_payment: bool = False
+    timeout_payment: bool = False
     kill_inventory: bool = False
+    timeout_inventory: bool = False
     kill_deliver: bool = False
+    timeout_deliver: bool = False
