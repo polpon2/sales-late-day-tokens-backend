@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from dotenv import load_dotenv
 from app.db import crud
 from app.db.engine import SessionLocal
-from app.models.user_model import Purchase
+from app.models.user_model import Purchase, Debug
 from app.rabbitmq.engine import rabbitmq
 from sqlalchemy.orm import Session
 
@@ -40,7 +40,7 @@ def get_db():
         db.close()
 
 @router.post("/purchase/")
-async def purchase(purchase_detail: Purchase):
+async def purchase(purchase_detail: Debug):
     rabbitmq.send_data(queue_name='from.backend', data=(json.dumps(purchase_detail.model_dump())))
     return
 

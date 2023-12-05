@@ -12,3 +12,8 @@ class Purchase(BaseModel):
 class UserCreate(BaseModel):
     username: str
 
+class Debug(Purchase):
+    kill_create: bool = False
+    kill_payment: bool = False
+    kill_inventory: bool = False
+    kill_deliver: bool = False
