@@ -15,6 +15,7 @@ class RabbitMQConnection:
         self.host = host
         self.port = port
         self.connection = None
+        self.channel = None
         self.connect()
 
     def __enter__(self):
@@ -27,6 +28,7 @@ class RabbitMQConnection:
     def connect(self):
         try:
             self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.host, port=self.port))
+            self.channel = self.connection.channel()
             print("Connected to Rabbit Mq")
         except:
             sys.exit("Could not connect to RabbitMq")
@@ -40,40 +42,20 @@ class RabbitMQConnection:
             self.connection = None
             print("RabbitMQ connection closed")
 
-    def get_channel(self):
-        if self.is_connected():
-            return self.connection.channel()
-        else:
-            self.connect()
-
-        return None
+    def _publish_to_queue(self, queue_name, data):
+        self.channel.basic_publish(exchange="",
+                                    routing_key=queue_name,
+                                    body=data)
+        print(f" [x] Sent to '{queue_name}'")
 
     def send_data(self, queue_name, data):
-        channel = self.get_channel()
-        # print(channel)
-        if (channel):
-            channel.queue_declare(queue=queue_name)
+        """Publish msg, reconnecting if necessary."""
 
-            channel.basic_publish(exchange='',
-                                routing_key=queue_name,
-                                body=data)
-
-            print(f" [x] Sent to '{queue_name}'")
-            channel.close()
+        try:
+            self._publish_to_queue(queue_name, data)
             return True
-        return False
-
-    def send_data_exchange(self, exchange_name="socketio", data=json.dumps({"socket_name": "", "data": ""})):
-        channel = self.get_channel()
-        # print(f"\n\n\n {channel} \n\n\n\n")
-        if (channel):
-            channel.exchange_declare(exchange=exchange_name, exchange_type='fanout', durable=False)
-
-            channel.basic_publish(exchange=exchange_name,
-                                routing_key='',
-                                body=data)
-
-            print(f" [x] Sent '{data}' to '{exchange_name}'")
-            channel.close()
+        except pika.exceptions.ConnectionClosed:
+            print('reconnecting to queue...')
+            self.connect()
+            self._publish_to_queue(queue_name, data)
             return True
-        return False
