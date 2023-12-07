@@ -58,13 +58,8 @@ class RabbitMQConnection:
         try:
             self._publish_to_queue(queue_name, data)
             return True
-        except pika.exceptions.ConnectionClosed:
+        except:
             print('reconnecting to queue...')
             self.connect()
-            self._publish_to_queue(queue_name, data)
-            return True
-        except pika.exceptions.ChannelWrongStateError:
-            print('recreating new channel...')
-            self.create_channel()
             self._publish_to_queue(queue_name, data)
             return True
