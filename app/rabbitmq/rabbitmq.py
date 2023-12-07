@@ -33,6 +33,9 @@ class RabbitMQConnection:
         except:
             sys.exit("Could not connect to RabbitMq")
 
+    def create_channel(self):
+        self.channel = self.connection.channel();
+
     def is_connected(self):
         return self.connection is not None and self.connection.is_open
 
@@ -43,6 +46,7 @@ class RabbitMQConnection:
             print("RabbitMQ connection closed")
 
     def _publish_to_queue(self, queue_name, data):
+
         self.channel.basic_publish(exchange="",
                                     routing_key=queue_name,
                                     body=data)
@@ -57,5 +61,10 @@ class RabbitMQConnection:
         except pika.exceptions.ConnectionClosed:
             print('reconnecting to queue...')
             self.connect()
+            self._publish_to_queue(queue_name, data)
+            return True
+        except pika.exceptions.ChannelWrongStateError:
+            print('recreating new channel...')
+            self.create_channel()
             self._publish_to_queue(queue_name, data)
             return True
